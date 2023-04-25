@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"UserTest::testUserCreation":0,"UserTest::testUsernameUpdate":0,"MessageTest::testMessageCreation":0.001,"RoomTest::testRoomCreation":0,"RoomTest::testRoomNameUpdate":0}}
