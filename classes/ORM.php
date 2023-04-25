@@ -33,8 +33,9 @@ class ORM
                 return $response;
             }
         }
-
-        return null;
+        $response['data'] = "User not found";
+        $response['success'] = false;
+        return $response;
     }
 
     public function addUser($user)
@@ -78,7 +79,7 @@ class ORM
 
     public function addRoom(Room $room)
     {
-        if ($this->getRoomByName($room->getName())) {
+        if ($this->getRoomByName($room->getName())['success'] == true) {
             $response['data'] = "A room with the same name already exists.";
             $response['success'] = false;
             return $response;
@@ -112,6 +113,9 @@ class ORM
     public function addMessage(Message $message)
     {
         $lastMessage = end($this->messages);
+        if ($this->getUserById($message->getUserId())['success'] == false) {
+            return $this->getUserById($message->getUserId());
+        }
         if ($lastMessage && $lastMessage->getUserId() === $message->getUserId()) {
             $interval = $lastMessage->getTimestamp()->diff($message->getTimestamp());
             if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24) {
@@ -129,6 +133,9 @@ class ORM
     public function getLastMessageByUserId($user_id)
     {
         $last_message = null;
+        if ($this->getUserById($user_id)['success'] == false) {
+            return $this->getUserById($user_id->getUserId());
+        }
         foreach ($this->messages as $message) {
             if ($message->getUserId() == $user_id) {
                 if ($last_message === null || $message->getTimestamp() > $last_message->getTimestamp()) {
