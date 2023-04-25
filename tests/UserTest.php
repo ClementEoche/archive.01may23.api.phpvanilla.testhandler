@@ -7,18 +7,39 @@ class UserTest extends TestCase
     public function testUserCreation()
     {
         $username = 'JohnDoe';
-        $user = new User($username);
+        $id = 1;
 
+        $user = new User($username, $id);
+
+        $this->assertEquals($id, $user->getId());
         $this->assertEquals($username, $user->getUsername());
     }
 
-    public function testUsernameUpdate()
+    public function testUsernameChange()
     {
-        $username1 = 'JohnDoe';
-        $username2 = 'JaneDoe';
-        $user = new User($username1);
-        $user->setUsername($username2);
+        $username = 'JohnDoe';
+        $id = 1;
 
-        $this->assertEquals($username2, $user->getUsername());
+        $user = new User($username, $id);
+        $newUsername = 'JaneDoe';
+
+        $user->setUsername($newUsername);
+
+        $this->assertEquals($newUsername, $user->getUsername());
+    }
+
+    public function testUserToArray()
+    {
+        $username = 'JohnDoe';
+        $id = 1;
+
+        $user = new User($username, $id);
+        $array = $user->toArray();
+
+        $this->assertArrayHasKey('id', $array);
+        $this->assertArrayHasKey('username', $array);
+
+        $this->assertEquals($id, $array['id']);
+        $this->assertEquals($username, $array['username']);
     }
 }

@@ -7,18 +7,39 @@ class RoomTest extends TestCase
     public function testRoomCreation()
     {
         $name = 'General';
-        $room = new Room($name);
+        $id = 1;
 
+        $room = new Room($name, $id);
+
+        $this->assertEquals($id, $room->getId());
         $this->assertEquals($name, $room->getName());
     }
 
-    public function testRoomNameUpdate()
+    public function testRoomNameChange()
     {
-        $name1 = 'General';
-        $name2 = 'Random';
-        $room = new Room($name1);
-        $room->setName($name2);
+        $name = 'General';
+        $id = 1;
 
-        $this->assertEquals($name2, $room->getName());
+        $room = new Room($name, $id);
+        $newName = 'Updated room';
+
+        $room->setName($newName);
+
+        $this->assertEquals($newName, $room->getName());
+    }
+
+    public function testRoomToArray()
+    {
+        $name = 'General';
+        $id = 1;
+
+        $room = new Room($name, $id);
+        $array = $room->toArray();
+
+        $this->assertArrayHasKey('id', $array);
+        $this->assertArrayHasKey('name', $array);
+
+        $this->assertEquals($id, $array['id']);
+        $this->assertEquals($name, $array['name']);
     }
 }

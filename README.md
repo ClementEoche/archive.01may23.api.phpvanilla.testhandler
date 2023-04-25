@@ -54,13 +54,13 @@ Les tests unitaires et fonctionnels sont écrits avec PHPUnit et Behat. Pour ex�
 - Pour exécuter les tests unitaires avec PHPUnit, utilisez la commande suivante :
 
 ```
-phpunit tests/unit
+php vendor/phpunit.phar
 ```
 
 - Pour exécuter les tests fonctionnels avec Behat, utilisez la commande suivante :
 
 ```
-behat
+php vendor/behat.phar -c behat.yml
 ```
 
 ## Contribution
