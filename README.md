@@ -17,7 +17,7 @@ Ce projet est un exemple de message board basique, permettant aux utilisateurs d
 2. Configurez votre serveur pour pointer vers le dossier du projet. (php -S localhost:8000 ./public/router.php)
 
 ## Utilisation
-Pour verifié si toute l'installation s'est bien déroulée
+Pour verifier si toute l'installation s'est bien déroulée
 - http://localhost:8000/
 **Pour renseigner correctement le contenu de la requete utilisez le Multipart Form**
 ### Création d'un utilisateur
