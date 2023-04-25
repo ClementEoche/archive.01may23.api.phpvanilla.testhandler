@@ -16,13 +16,36 @@ Ce projet est un exemple de message board basique, permettant aux utilisateurs d
 1. Clonez ce dépôt sur votre serveur local ou distant.
 2. Configurez votre serveur pour pointer vers le dossier du projet. (php -S localhost:8000 ./public/router.php)
 
+## Utilisation
+Pour verifié si toute l'installation s'est bien déroulée
+- http://localhost:8000/
+**Pour renseigner correctement le contenu de la requete utilisez le Multipart Form**
+### Création d'un utilisateur
+POST http://localhost:8000/createuser
+- username : string
+### Création d'un salon
+POST http://localhost:8000/createroom
+- room_name : string
+### Création d'un message
+POST http://localhost:8000/post-message
+- user_id : int
+- room_id : int
+- message : string
+### Récupération des messages d'un salon
+GET http://localhost:8000/messages?room_id=0
+- room_id : int
+### Récupération des salons
+GET http://localhost:8000/rooms
+### Récupération des utilisateurs
+GET http://localhost:8000/users
+
 ## Structure du projet
 
 - `ORM.php` : Contient la classe ORM qui gère la création des salons et des messages, ainsi que la récupération des messages par salon.
 - `User.php` : Contient la classe User qui représente un utilisateur du message board.
 - `Message.php` : Contient la classe Message qui représente un message posté par un utilisateur.
 - `Room.php` : Contient la classe Room qui représente un salon de discussion.
-- `/tests` : Contient les tests unitaires et fonctionnels du projet.
+- `/tests` : Contient les tests PHPUnit.
 
 ## Tests
 
