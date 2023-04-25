@@ -5,6 +5,7 @@ class ORM
     private $users;
     private $rooms;
     private $messages;
+    public $response = ['success' => false, 'data' => null];
 
     public function __construct()
     {
@@ -17,7 +18,9 @@ class ORM
     public function getUsers()
     {
         return array_map(function ($user) {
-            return $user->toArray();
+            $response['data'] = $user->toArray();
+            $response['success'] = true;
+            return $response;
         }, $this->users);
     }
 
@@ -25,7 +28,9 @@ class ORM
     {
         foreach ($this->users as $user) {
             if ($user->getId() == $id) {
-                return $user->toArray();
+                $response['data'] = $user->toArray();
+                $response['success'] = true;
+                return $response;
             }
         }
 
@@ -34,15 +39,26 @@ class ORM
 
     public function addUser($user)
     {
+        foreach ($this->users as $baseuser) {
+            if ($baseuser->getUsername() == $user->getUsername()) {
+                $response['data'] = "Username already exist";
+                $response['success'] = false;
+                return $response;
+            }
+        }
         $this->users[] = $user;
-        return $user->toArray();
+        $response['data'] = $user->toArray();
+        $response['success'] = true;
+        return $response;
     }
 
     // Room-related methods
     public function getRooms()
     {
         return array_map(function ($room) {
-            return $room->toArray();
+            $response['data'] = $room->toArray();
+            $response['success'] = true;
+            return $response;
         }, $this->rooms);
     }
 
@@ -50,21 +66,27 @@ class ORM
     {
         foreach ($this->rooms as $room) {
             if ($room->getName() == $name) {
-                return $room->toArray();
+                $response['data'] = $room->toArray();
+                $response['success'] = true;
+                return $response;
             }
         }
-
-        return null;
+        $response['data'] = "Room not found";
+        $response['success'] = false;
+        return $response;
     }
 
     public function addRoom(Room $room)
     {
         if ($this->getRoomByName($room->getName())) {
-            throw new \Exception("A room with the same name already exists.");
+            $response['data'] = "A room with the same name already exists.";
+            $response['success'] = false;
+            return $response;
         }
-
         $this->rooms[] = $room;
-        return $room->toArray();
+        $response['data'] = $room->toArray();
+        $response['success'] = true;
+        return $response;
     }
 
     // Message-related methods
@@ -76,12 +98,14 @@ class ORM
                 $room_messages[] = $message->toArray();
             }
         }
-        
+
         usort($room_messages, function ($a, $b) {
             return $a['timestamp'] <=> $b['timestamp'];
         });
 
-        return $room_messages;
+        $response['data'] = $room_messages;
+        $response['success'] = true;
+        return $response;
     }
 
 
@@ -91,12 +115,15 @@ class ORM
         if ($lastMessage && $lastMessage->getUserId() === $message->getUserId()) {
             $interval = $lastMessage->getTimestamp()->diff($message->getTimestamp());
             if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24) {
-                return ("You cannot post two consecutive messages within 24 hours.");
+                $response['data'] = "You cannot post two consecutive messages within 24 hours.";
+                $response['success'] = false;
+                return $response;
             }
         }
-
         $this->messages[] = $message;
-        return $message->toArray();
+        $response['data'] = $message->toArray();
+        $response['success'] = true;
+        return $response;
     }
 
     public function getLastMessageByUserId($user_id)
@@ -109,7 +136,8 @@ class ORM
                 }
             }
         }
-
-        return $last_message->toArray();
+        $response['data'] = $last_message->toArray();
+        $response['success'] = true;
+        return $response;
     }
 }

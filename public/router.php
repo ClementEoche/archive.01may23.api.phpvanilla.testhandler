@@ -14,6 +14,7 @@ if (!isset($_SESSION['orm']) || $_SESSION['orm'] == null) {
     $_SESSION['idmessagemanager'] = 0;
 }
 $orm = $_SESSION['orm'];
+// Worst way to do it, but it works for the evaluation purpose
 $usercounter = $_SESSION['idusermanager'];
 $roomcounter = $_SESSION['idroommanager'];
 $messagecounter = $_SESSION['idmessagemanager'];
@@ -33,22 +34,19 @@ switch ($uri) {
         break;
     case '/users':
         if ($method == 'GET') {
-            $response['data'] = $orm->getUsers();
-            $response['success'] = true;
+            $response = $orm->getUsers();
         }
         break;
     case '/rooms':
         if ($method == 'GET') {
-            $response['data'] = $orm->getRooms();
-            $response['success'] = true;
+            $response = $orm->getRooms();
         }
         break;
     case '/messages?' . $param:
         if ($method == 'GET') {
             if (isset($_GET['room_id'])) {
                 $room_id = $_GET['room_id'];
-                $response['data'] = $orm->getMessagesByRoomId($room_id);
-                $response['success'] = true;
+                $response = $orm->getMessagesByRoomId($room_id);
             } else {
                 $response['data'] = "Missing room_id parameter";
                 $response['success'] = false;
@@ -59,8 +57,7 @@ switch ($uri) {
         if ($method == 'POST') {
             $username = $_POST['username'];
             $user = new User($username, $usercounter);
-            $response['data'] = $orm->addUser($user);
-            $response['success'] = true;
+            $response = $orm->addUser($user);
             $_SESSION['idusermanager'] = $usercounter + 1;
         }
         break;
@@ -68,8 +65,7 @@ switch ($uri) {
         if ($method == 'POST') {
             $room_name = $_POST['room_name'];
             $room = new Room($room_name, $roomcounter);
-            $response['data'] = $orm->addRoom($room);
-            $response['success'] = true;
+            $response = $orm->addRoom($room);
             $_SESSION['idroommanager'] = $roomcounter + 1;
         }
         break;
@@ -80,8 +76,7 @@ switch ($uri) {
             $content = $_POST['content'];
 
             $message = new Message($user_id, $room_id, $content, $messagecounter);
-            $response['data'] = $orm->addMessage($message);
-            $response['success'] = true;
+            $response = $orm->addMessage($message);
             $_SESSION['idmessagemanager'] = $messagecounter + 1;
         }
         break;
