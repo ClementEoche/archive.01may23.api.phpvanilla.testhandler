@@ -1,125 +1,175 @@
 <?php
 
 use Behat\Behat\Context\Context;
-use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+require_once './classes/ORM.php';
+require_once './classes/User.php';
+require_once './classes/Room.php';
+require_once './classes/Message.php';
 
 class FeatureContext implements Context
 {
-    private $users = [];
-    private $rooms = [];
+    private $orm;
+    private $currentUser;
 
-    /**
-     * @When I create a user with the username :username
-     */
-    public function iCreateAUserWithTheUsername($username)
+    public function __construct()
     {
-        $user = new User($username);
-        $this->users[] = $user;
+        $this->orm = new ORM();
     }
 
     /**
-     * @Then there should be :count user
+     * @Given I am a new user
      */
-    public function thereShouldBeUser($count)
+    public function iAmANewUser()
     {
-        $actualCount = count($this->users);
-        if ($actualCount != $count) {
-            throw new \Exception("Expected $count users, but got $actualCount");
+        $this->currentUser = null;
+    }
+
+    /**
+     * @When I create a user with the name :arg1
+     */
+    public function iCreateAUserWithTheName($arg1)
+    {
+        $id = count($this->orm->getUsers());
+        $this->currentUser = new User($arg1, $id);
+        $this->orm->addUser($this->currentUser);
+    }
+
+    /**
+     * @Then a user with the name :arg1 should exist
+     */
+    public function aUserWithTheNameShouldExist($arg1)
+    {
+        $response = $this->orm->getUserByUsername($arg1);
+        if ($response['success'] == false) {
+            throw new Exception("User not found");
+        }
+    } 
+
+    /**
+     * @Given I am a user
+     */
+    public function iAmAUser()
+    {
+        $this->currentUser = new User("test", 0);
+        $this->orm->addUser($this->currentUser);
+    }
+
+    /**
+     * @When I create a room with the name :arg1
+     */
+    public function iCreateARoomWithTheName($arg1)
+    {
+        $id = count($this->orm->getRooms());
+        $room = new Room($arg1, $id);
+        $this->orm->addRoom($room);
+    }
+
+    /**
+     * @Then a room with the name :arg1 should exist
+     */
+    public function aRoomWithTheNameShouldExist($arg1)
+    {
+        $response = $this->orm->getRoomByName($arg1);
+        if ($response['success'] == false) {
+            throw new Exception("Room not found");
         }
     }
 
     /**
-     * @When I create a room with the name :roomName
+     * @Given I am a user named :arg1
      */
-    public function iCreateARoomWithTheName($roomName)
+    public function iAmAUserNamed($arg1)
     {
-        $room = new Room($roomName);
-        $this->rooms[] = $room;
+        $this->currentUser = new User($arg1, 0);
+        $this->orm->addUser($this->currentUser);
     }
 
     /**
-     * @Then there should be :count room
+     * @Given a room named :arg1 exists
      */
-    public function thereShouldBeRoom($count)
+    public function aRoomNamedExists($arg1)
     {
-        $actualCount = count($this->rooms);
-        if ($actualCount != $count) {
-            throw new \Exception("Expected $count rooms, but got $actualCount");
-        }
+        $id = 5;
+        $room = new Room($arg1, $id);
+        $this->orm->addRoom($room);
     }
 
     /**
-     * @Given there is a user with the username :username
+     * @When I post a message :arg1 in the room :arg2
      */
-    public function thereIsAUserWithTheUsername($username)
+    public function iPostAMessageInTheRoom($arg1, $arg2)
     {
-        $user = new User($username);
-        $this->users[] = $user;
+        $room = $this->orm->getRoomByName($arg2)['data'];
+        $id = 0;
+        $message = new Message($this->currentUser->getUsername(), $room, $arg1, $id);
+        $this->orm->addMessage($message);
     }
 
     /**
-     * @Given there is a room with the name :roomName
+     * @Then the message :arg1 should be visible in the room :arg2
      */
-    public function thereIsARoomWithTheName($roomName)
+    public function theMessageShouldBeInTheRoom($arg1, $arg2)
     {
-        $room = new Room($roomName);
-        $this->rooms[] = $room;
-    }
-
-    /**
-     * @When the user :username posts a message :content in the room :roomName
-     */
-    public function theUserPostsAMessageInTheRoom($username, $content, $roomName)
-    {
-        $user = $this->getUserByUsername($username);
-        $room = $this->getRoomByName($roomName);
-
-        if (!$user || !$room) {
-            throw new \Exception("User or room not found");
-        }
-
-        $message = new Message($user,$room, $content);
-        $room->addMessage($message);
-    }
-
-    /**
-     * @Then the room :roomName should have :count message
-     */
-    public function theRoomShouldHaveMessage($roomName, $count)
-    {
-        $room = $this->getRoomByName($roomName);
-
-        if (!$room) {
-            throw new \Exception("Room not found");
-        }
-
-        $actualCount = count($room->getMessages());
-        if ($actualCount != $count) {
-            throw new \Exception("Expected $count messages
-            , but got $actualCount");
-        }
-    }
-
-    private function getUserByUsername($username)
-    {
-        foreach ($this->users as $user) {
-            if ($user->getUsername() === $username) {
-                return $user;
+        $room = $this->orm->getRoomByName($arg2)['data'];
+        $messages = $this->orm->getMessagesByRoomId($room["id"]);
+        $found = false;
+        foreach ($messages as $message) {
+            if ($message == $arg1) {
+                $found = true;
             }
         }
-
-        return null;
-    }
-
-    private function getRoomByName($roomName)
-    {
-        foreach ($this->rooms as $room) {
-            if ($room->getName() === $roomName) {
-                return $room;
-            }
+        if ($found == false) {
+            throw new Exception("Message not found");
         }
-
-        return null;
     }
+
+    /**
+     * @Given I am a user2
+     */
+    public function iAmAUser2()
+    {
+        $this->currentUser = new User("test2", 0);
+        $this->orm->addUser($this->currentUser);
+    }
+
+    /**
+     * @Given a room named :arg1 exists with the following messages:
+     */
+    public function aRoomNamedExistsWithTheFollowingMessages($arg1, TableNode $table)
+    {
+        $id = 5;
+        $room = new Room($arg1, $id);
+        $this->orm->addRoom($room);
+        foreach ($table as $row) {
+            $user = $this->orm->addUser(new User($row['user'], count($this->orm->getUsers())+1));
+            $message = new Message($user['data']['id'], $id, $row['message'], count($this->orm->getMessagesByRoomId($id))+1);
+            $this->orm->addMessage($message);
+        }
+    }
+
+    /**
+     * @When I visit the room :arg1
+     */
+    public function iVisitTheRoom($arg1)
+    {
+        $this->orm->getRoomByName($arg1);
+    }
+
+    /**
+     * @Then I should see the following messages in order:
+     */
+    public function iShouldSeeTheFollowingMessagesInOrder(TableNode $table)
+    {
+        $messages = $this->orm->getMessagesByRoomId(5);
+        $i = 0;
+        foreach ($table as $row) {
+            if ($messages['data'][$i]['content'] != $row['message'] && $messages['data'][$i]['user'] != $row['user']) {
+                throw new Exception("Messages not in order");
+            }
+            $i++;
+        }
+    }
+
 }
+

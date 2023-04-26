@@ -38,6 +38,20 @@ class ORM
         return $response;
     }
 
+    public function getUserByUsername($username)
+    {
+        foreach ($this->users as $user) {
+            if ($user->getUsername() == $username) {
+                $response['data'] = $user->toArray();
+                $response['success'] = true;
+                return $response;
+            }
+        }
+        $response['data'] = "User not found";
+        $response['success'] = false;
+        return $response;
+    }
+
     public function addUser($user)
     {
         foreach ($this->users as $baseuser) {

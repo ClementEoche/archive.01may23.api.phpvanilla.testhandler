@@ -1,16 +1,31 @@
 Feature: Message Board
+  As a user
+  I want to be able to post messages and see them in rooms
 
-  Scenario: Create a new user
-    Given I have an empty message board
-    When I create a user with the username "JohnDoe"
-    Then the message board should have 1 user
+  Scenario: Create a user
+    Given I am a new user
+    When I create a user with the name "Alice"
+    Then a user with the name "Alice" should exist
 
-  Scenario: Create a new room
-    Given I have an empty message board
-    When I create a room with the name "General"
-    Then the message board should have 1 room
+  Scenario: Create a room
+    Given I am a user
+    When I create a room with the name "Room1"
+    Then a room with the name "Room1" should exist
 
   Scenario: Post a message in a room
-    Given I have a message board with one user and one room
-    When the user "JohnDoe" posts a message "Hello, World!" in the room "General"
-    Then the room "General" should have 1 message
+    Given I am a user named "Alice"
+    And a room named "Room1" exists
+    When I post a message "Hello, everyone!" in the room "Room1"
+    Then the message "Hello, everyone!" should be visible in the room "Room1"
+
+  Scenario: Read messages in a room
+    Given I am a user2
+    And a room named "Room1" exists with the following messages:
+      | user     | message               |
+      | Alice    | Hello, everyone!      |
+      | Bob      | Hi Alice!             |
+    When I visit the room "Room1"
+    Then I should see the following messages in order:
+      | user     | message               |
+      | Alice    | Hello, everyone!      |
+      | Bob      | Hi Alice!             |
