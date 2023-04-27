@@ -143,19 +143,23 @@ class ORM
 
     public function addMessage(Message $message)
     {
-        $lastMessage = end($this->messages);
         if ($this->getUserById($message->getUserId())['success'] == false) {
             return $this->getUserById($message->getUserId());
         }
-        if($this->getRoomById($message->getRoomId())['success'] == false) {
+        if ($this->getRoomById($message->getRoomId())['success'] == false) {
             return $this->getRoomByName($message->getRoomId());
         }
-        if ($lastMessage && $lastMessage->getUserId() === $message->getUserId()) {
-            $interval = $lastMessage->getTimestamp()->diff($message->getTimestamp());
-            if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24) {
-                $response['data'] = "You cannot post two consecutive messages within 24 hours.";
-                $response['success'] = false;
-                return $response;
+        $lastMessage = $this->getLastMessageByUserId($message->getUserId());
+        if ($lastMessage !== null) {
+            $messageTimestamp = $message->getTimestamp();
+            $lastMessageTimestamp = $lastMessage->getTimestamp();
+            if ($messageTimestamp instanceof DateTimeInterface && $lastMessageTimestamp instanceof DateTimeInterface) {
+                $interval = $lastMessageTimestamp->diff($messageTimestamp);
+                if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24) {
+                    $response['data'] = "You cannot post two consecutive messages within 24 hours.";
+                    $response['success'] = false;
+                    return $response;
+                }
             }
         }
         $this->messages[] = $message;
@@ -165,20 +169,18 @@ class ORM
     }
 
     public function getLastMessageByUserId($user_id)
-    {
-        $last_message = null;
-        if ($this->getUserById($user_id)['success'] == false) {
-            return $this->getUserById($user_id->getUserId());
-        }
-        foreach ($this->messages as $message) {
-            if ($message->getUserId() == $user_id) {
-                if ($last_message === null || $message->getTimestamp() > $last_message->getTimestamp()) {
-                    $last_message = $message;
-                }
+{
+    $last_message = null;
+    if ($this->getUserById($user_id)['success'] == false) {
+        return $this->getUserById($user_id);
+    }
+    foreach ($this->messages as $message) {
+        if ($message->getUserId() == $user_id) {
+            if ($last_message === null || $message->getTimestamp() > $last_message->getTimestamp()) {
+                $last_message = $message;
             }
         }
-        $response['data'] = $last_message->toArray();
-        $response['success'] = true;
-        return $response;
     }
+    return $last_message;
+}
 }
