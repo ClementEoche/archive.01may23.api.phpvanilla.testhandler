@@ -91,6 +91,20 @@ class ORM
         return $response;
     }
 
+    public function getRoomById($id)
+    {
+        foreach ($this->rooms as $room) {
+            if ($room->getId() == $id) {
+                $response['data'] = $room->toArray();
+                $response['success'] = true;
+                return $response;
+            }
+        }
+        $response['data'] = "Room not found";
+        $response['success'] = false;
+        return $response;
+    }
+
     public function addRoom(Room $room)
     {
         if ($this->getRoomByName($room->getName())['success'] == true) {
@@ -107,6 +121,9 @@ class ORM
     // Message-related methods
     public function getMessagesByRoomId($room_id)
     {
+        if ($this->getRoomById($room_id)['success'] == false) {
+            return $this->getRoomById($room_id);
+        }
         $room_messages = [];
         foreach ($this->messages as $message) {
             if ($message->getRoomId() == $room_id) {
@@ -129,6 +146,9 @@ class ORM
         $lastMessage = end($this->messages);
         if ($this->getUserById($message->getUserId())['success'] == false) {
             return $this->getUserById($message->getUserId());
+        }
+        if($this->getRoomById($message->getRoomId())['success'] == false) {
+            return $this->getRoomByName($message->getRoomId());
         }
         if ($lastMessage && $lastMessage->getUserId() === $message->getUserId()) {
             $interval = $lastMessage->getTimestamp()->diff($message->getTimestamp());

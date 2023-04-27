@@ -41,9 +41,37 @@ switch ($uri) {
             $response = $orm->getUsers();
         }
         break;
+    case '/users?' . $param:
+        if ($method == 'GET') {
+            if (isset($_GET['id'])) {
+                $id = $_GET['id'];
+                $response = $orm->getUserById($id);
+            } else if (isset($_GET['username'])) {
+                $username = $_GET['username'];
+                $response = $orm->getUserByUsername($username);
+            } else {
+                $response['data'] = "Missing id or username parameter";
+                $response['success'] = false;
+            }
+        }
+        break;
     case '/rooms':
         if ($method == 'GET') {
             $response = $orm->getRooms();
+        }
+        break;
+    case '/rooms?' . $param:
+        if ($method == 'GET') {
+            if (isset($_GET['id'])) {
+                $id = $_GET['id'];
+                $response = $orm->getRoomById($id);
+            } else if (isset($_GET['room_name'])) {
+                $room_name = $_GET['room_name'];
+                $response = $orm->getRoomByName($room_name);
+            } else {
+                $response['data'] = "Missing id or room_name parameter";
+                $response['success'] = false;
+            }
         }
         break;
     case '/messages?' . $param:
