@@ -151,15 +151,12 @@ class ORM
         }
         $lastMessage = $this->getLastMessageByUserId($message->getUserId());
         if ($lastMessage !== null) {
-            $messageTimestamp = $message->getTimestamp();
             $lastMessageTimestamp = $lastMessage->getTimestamp();
-            if ($messageTimestamp instanceof DateTimeInterface && $lastMessageTimestamp instanceof DateTimeInterface) {
-                $interval = $lastMessageTimestamp->diff($messageTimestamp);
-                if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24) {
-                    $response['data'] = "You cannot post two consecutive messages within 24 hours.";
-                    $response['success'] = false;
-                    return $response;
-                }
+            $interval = $lastMessageTimestamp->diff($message->getTimestamp());
+            if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24 && $lastMessage === end($this->messages)) {
+                $response['data'] = "You cannot post two consecutive messages within 24 hours.";
+                $response['success'] = false;
+                return $response;
             }
         }
         $this->messages[] = $message;
@@ -168,19 +165,20 @@ class ORM
         return $response;
     }
 
+
     public function getLastMessageByUserId($user_id)
-{
-    $last_message = null;
-    if ($this->getUserById($user_id)['success'] == false) {
-        return $this->getUserById($user_id);
-    }
-    foreach ($this->messages as $message) {
-        if ($message->getUserId() == $user_id) {
-            if ($last_message === null || $message->getTimestamp() > $last_message->getTimestamp()) {
-                $last_message = $message;
+    {
+        $last_message = null;
+        if ($this->getUserById($user_id)['success'] == false) {
+            return $this->getUserById($user_id);
+        }
+        foreach ($this->messages as $message) {
+            if ($message->getUserId() == $user_id) {
+                if ($last_message === null || $message->getTimestamp() > $last_message->getTimestamp()) {
+                    $last_message = $message;
+                }
             }
         }
+        return $last_message;
     }
-    return $last_message;
-}
 }
