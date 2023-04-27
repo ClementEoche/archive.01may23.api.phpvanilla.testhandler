@@ -153,8 +153,8 @@ class ORM
         if ($lastMessage !== null) {
             $lastMessageTimestamp = $lastMessage->getTimestamp();
             $interval = $lastMessageTimestamp->diff($message->getTimestamp());
-            if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24 && $lastMessage === end($this->messages)) {
-                $response['data'] = "You cannot post two consecutive messages within 24 hours.";
+            if ($interval->days == 0 && $interval->h == 0 && $interval->i < 24 && $lastMessage === end($this->messages) && $lastMessage->getRoomId() === $message->getRoomId()) {
+                $response['data'] = "You cannot post two consecutive messages within 24 hours in the same room.";
                 $response['success'] = false;
                 return $response;
             }
@@ -164,6 +164,7 @@ class ORM
         $response['success'] = true;
         return $response;
     }
+
 
 
     public function getLastMessageByUserId($user_id)
