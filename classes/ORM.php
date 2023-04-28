@@ -17,6 +17,11 @@ class ORM
     // User-related methods
     public function getUsers()
     {
+        if (count($this->users) == 0) {
+            $response['data'] = "No users found";
+            $response['success'] = false;
+            return $response;
+        }
         return array_map(function ($user) {
             $response['data'] = $user->toArray();
             $response['success'] = true;
@@ -70,6 +75,11 @@ class ORM
     // Room-related methods
     public function getRooms()
     {
+        if (count($this->rooms) == 0) {
+            $response['data'] = "No rooms found";
+            $response['success'] = false;
+            return $response;
+        }
         return array_map(function ($room) {
             $response['data'] = $room->toArray();
             $response['success'] = true;

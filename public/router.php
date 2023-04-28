@@ -1,6 +1,14 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:8080');
+$allowedOrigins = array(
+    "http://localhost:8080",
+    "http://localhost"
+);
+// Get the request's origin
+$requestOrigin = $_SERVER['HTTP_ORIGIN'];
+if (in_array($requestOrigin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $requestOrigin");
+}
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
