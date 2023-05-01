@@ -38,6 +38,15 @@ GET http://localhost:8000/messages?room_id=0
 GET http://localhost:8000/rooms
 ### Récupération des utilisateurs
 GET http://localhost:8000/users
+### Récupération d'un utilisateur par son id ou son username
+GET http://localhost:8000/user?id=0
+- id : int
+GET http://localhost:8000/user?username=string
+- username : string
+### Récupération d'un salon par son id ou son nom
+GET http://localhost:8000/room?id=0
+- id : int
+GET http://localhost:8000/room?room_name=string
 
 ## Structure du projet
 
