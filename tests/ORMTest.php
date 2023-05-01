@@ -56,7 +56,7 @@ class ORMTest extends TestCase
         $this->assertCount(1, $retrievedMessages['data']);
 
         $lastMessage = $this->orm->getLastMessageByUserId(1);
-        $this->assertTrue($lastMessage['success']);
-        $this->assertEquals('Hello, world!', $lastMessage['data']['content']);
+        $this->assertInstanceOf(Message::class, $lastMessage);
+        $this->assertEquals('Hello, world!', $lastMessage->getContent());
     }
 }
